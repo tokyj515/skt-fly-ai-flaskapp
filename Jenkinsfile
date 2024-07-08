@@ -40,7 +40,7 @@ pipeline {
 
 			steps {
 
-				sh 'docker build -t flask-jenkins:v1.0.0 .'
+				sh 'docker build -t flaskapp:v1.0.0 .'
 
 			}
 
@@ -84,11 +84,11 @@ pipeline {
 
 				]]) {
 
-					sh "docker tag flask-jenkins:latest ${DOCKER_USER_ID}/jenkins-app:${BUILD_NUMBER}"
+					sh "docker tag flask-jenkins:latest ${DOCKER_USER_ID}/flaskapp:${BUILD_NUMBER}"
 
 					sh "docker login -u ${DOCKER_USER_ID} -p ${DOCKER_USER_PASSWORD}"
 
-					sh "docker push ${DOCKER_USER_ID}/jenkins-app:${BUILD_NUMBER}"
+					sh "docker push ${DOCKER_USER_ID}/flaskapp:${BUILD_NUMBER}"
 
 				}
 
