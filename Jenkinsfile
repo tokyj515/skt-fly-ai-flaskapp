@@ -1,61 +1,52 @@
 pipeline {
 
-agent any
+	agent any
 
-stages {
+	parameters {
 
-stage("build") {
+		choice(name: 'VERSION', choices: ['1.1.0','1.2.0','1.3.0'], description: '')
+		booleanParam(name: 'executeTests', defaultValue: true, description: '')
+	}
 
-when {
+	stages {
 
-expression {
+		stage("init") {
+			steps {
+				script {
+					gv = load "script.groovy"
+				}
+			}
+		}
 
-env.GIT_BRANCH == 'origin/master'
+		stage("Checkout") {
+			steps {
+				checkout scm
+			}
+		}
 
-}
+		stage("Build") {
+			steps {
+				sh 'docker build -t flaskjenkins:v1.0.0 .'
+			}
+		}
+		stage("test") {
+			when {
+				expression {
+					params.executeTests
+				}
+			}
+			steps {
+				script {
 
-}
-
-steps {
-
-echo 'building the applicaiton...'
-
-}
-
-}
-
-stage("test") {
-
-when {
-
-expression {
-
-env.GIT_BRANCH == 'origin/test' || env.GIT_BRANCH == ''
-
-}
-
-}
-
-Jenkins CI Pipeline 생성 실습 5
-
-steps {
-
-echo 'testing the applicaiton...'
-
-}
-
-}
-
-stage("deploy") {
-
-steps {
-
-echo 'deploying the applicaiton...'
-
-}
-
-}
-
-}
+					gv.testApp()
+				}
+			}
+		}
+		stage("deploy") {
+			steps {
+				echo 'deploying the applicaiton...'
+			}
+		}
+	}
 
 }
