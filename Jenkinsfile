@@ -1,111 +1,111 @@
 pipeline {
 
-	agent any
+   agent any
 
-	parameters {
+   parameters {
 
-		choice(name: 'VERSION', choices: ['1.1.0','1.2.0','1.3.0'], description: '')
+      choice(name: 'VERSION', choices: ['1.1.0','1.2.0','1.3.0'], description: '')
 
-		booleanParam(name: 'executeTests', defaultValue: true, description: '')
+      booleanParam(name: 'executeTests', defaultValue: true, description: '')
 
-	}
+   }
 
-	stages {
+   stages {
 
-		stage("init") {
+      stage("init") {
 
-			steps {
+         steps {
 
-				script {
+            script {
 
-					gv = load "script.groovy"
+               gv = load "script.groovy"
 
-				}
+            }
 
-			}
+         }
 
-		}
+      }
 
-		stage("Checkout") {
+      stage("Checkout") {
 
-			steps {
+         steps {
 
-				checkout scm
+            checkout scm
 
-			}
+         }
 
-		}
+      }
 
-		stage("Build") {
+      stage("Build") {
 
-			steps {
+         steps {
 
-				sh 'docker build -t flaskapp:v1.0.0 .'
+            sh 'docker build -t flaskapp:v1.0.0 .'
 
-			}
+         }
 
-		}
+      }
 
-		stage("test") {
+      stage("test") {
 
-			when {
+         when {
 
-				expression {
+            expression {
 
-					params.executeTests
+               params.executeTests
 
-				}
+            }
 
-			}
+         }
 
-			steps {
+         steps {
 
-				script {
+            script {
 
-					gv.testApp()
+               gv.testApp()
 
-				}
+            }
 
-			}
+         }
 
-		}
+      }
 
-		stage("Tag and Push") {
+      stage("Tag and Push") {
 
-			steps {
+         steps {
 
-				withCredentials([[$class: 'UsernamePasswordMultiBinding',
+            withCredentials([[$class: 'UsernamePasswordMultiBinding',
 
-				credentialsId: 'docker-hub', 
+            credentialsId: 'docker-hub', 
 
-				usernameVariable: 'DOCKER_USER_ID', 
+            usernameVariable: 'DOCKER_USER_ID', 
 
-				passwordVariable: 'DOCKER_USER_PASSWORD'
+            passwordVariable: 'DOCKER_USER_PASSWORD'
 
-				]]) {
+            ]]) {
 
-					sh "docker tag flaskapp:latest ${DOCKER_USER_ID}/flaskapp:${BUILD_NUMBER}"
+               sh "docker tag flaskapp:v1.0.0 ${DOCKER_USER_ID}/flaskapp:${BUILD_NUMBER}"
 
-					sh "docker login -u ${DOCKER_USER_ID} -p ${DOCKER_USER_PASSWORD}"
+               sh "docker login -u ${DOCKER_USER_ID} -p ${DOCKER_USER_PASSWORD}"
 
-					sh "docker push ${DOCKER_USER_ID}/flaskapp:${BUILD_NUMBER}"
+               sh "docker push ${DOCKER_USER_ID}/flaskapp:${BUILD_NUMBER}"
 
-				}
+            }
 
-			}
+         }
 
-		}
+      }
 
-		stage("deploy") {
+      stage("deploy") {
 
-			steps {
+         steps {
 
-				echo 'deploying the applicaiton...'
+            echo 'deploying the applicaiton...'
 
-			}
+         }
 
-		}
+      }
 
-	}
+   }
 
 }
