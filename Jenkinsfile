@@ -1,61 +1,61 @@
 pipeline {
 
-   agent any
+agent any
 
-   stages {
+stages {
 
-      stage("build") {
+stage("build") {
 
-         steps {
+when {
 
-            echo 'building the applicaiton...'
+expression {
 
-         }
+env.GIT_BRANCH == 'origin/master'
 
-      }
+}
 
-      stage("test") {
+}
 
-         steps {
+steps {
 
-            echo 'testing the applicaiton...'
+echo 'building the applicaiton...'
 
-         }
+}
 
-      }
+}
 
-      stage("deploy") {
+stage("test") {
 
-         steps {
+when {
 
-            echo 'deploying the applicaiton...'
+expression {
 
-         }
+env.GIT_BRANCH == 'origin/test' || env.GIT_BRANCH == ''
 
-      }
+}
 
-   }
+}
 
-   post {
+Jenkins CI Pipeline 생성 실습 5
 
-         always {
+steps {
 
-            echo 'building..'
+echo 'testing the applicaiton...'
 
-         }
+}
 
-         success {
+}
 
-               echo 'success'
+stage("deploy") {
 
-         }
+steps {
 
-         failure {
+echo 'deploying the applicaiton...'
 
-               echo 'failure'
+}
 
-         }
+}
 
-      }
+}
 
-   }
+}
